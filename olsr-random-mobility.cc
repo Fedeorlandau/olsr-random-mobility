@@ -29,10 +29,9 @@ main (int argc, char *argv[])
 	}
 
 	// Stack WI-FI
-	WifiHelper wifi = WifiHelper::Default ();
-	wifi.SetStandard (WIFI_PHY_STANDARD_80211a);
-	NqosWifiMacHelper wifiMac = NqosWifiMacHelper::Default ();
-	YansWifiPhyHelper wifiPhy = YansWifiPhyHelper::Default ();
+	WifiHelper wifi;
+	WifiMacHelper wifiMac;
+	YansWifiPhyHelper wifiPhy = YansWifiPhyHelper ();
 	YansWifiChannelHelper wifiChannel = YansWifiChannelHelper::Default ();
 	wifiPhy.SetChannel(wifiChannel.Create());
 
@@ -62,6 +61,7 @@ main (int argc, char *argv[])
 
 	int distance = (200 / sides);
 	positionAlloc ->Add(Vector( -100, - 100, 0));
+	
 
 	internet.Install(c);
 	NetDeviceContainer devices = wifi.Install (wifiPhy, wifiMac, c);
@@ -98,11 +98,13 @@ main (int argc, char *argv[])
 	}
 
 	mobility.SetPositionAllocator(positionAlloc);
+\
+
 	if(mobilityStatic){
 		mobility.SetMobilityModel("ns3::ConstantPositionMobilityModel");
 	}
 	else{
-		mobility.SetMobilityModel("ns3::RandomDirection2dMobilityModel");
+		mobility.SetMobilityModel("ns3::RandomDirection2dMobilityModel", "Bounds", RectangleValue (Rectangle (0, 100, 0, 100)), "Speed", StringValue ("ns3::ConstantRandomVariable[Constant=10]"));
 	}
 
 	mobility.Install(c);
