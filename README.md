@@ -3,7 +3,7 @@ This is a [OLSR](https://datatracker.ietf.org/doc/html/rfc3626) protocol simulat
 
 ## Get started
 ### Prequisites
-* ns3 installed
+* ns3 installed (3.34)
 * python3 pyviz installed
 
 ### Running the simulation
