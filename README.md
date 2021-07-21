@@ -12,7 +12,7 @@ First you need to copy this simulation into ns3 scratch folder.
 ```sh
 cp olsr-random-mobility.cc $NSR_INSTALLATION_FOLDER/scratch
 
-./waf --run "scratch/olsr --sides=5 --mobilityStatic=false" --vis
+./waf --run "scratch/olsr-random-mobility --sides=5 --mobilityStatic=false" --vis
 ```
 
 ### For macOS users:
