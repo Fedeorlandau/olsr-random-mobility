@@ -10,34 +10,34 @@
 
 using namespace ns3;
 
-int 
-main (int argc, char *argv[])
+int main(int argc, char *argv[])
 {
 	int sides = 5;
 	bool mobilityStatic = true;
 	Ssid ssid;
-  	Address serverAddress;
+	Address serverAddress;
 
 	CommandLine cmd;
-	cmd.AddValue ("sides", "Number of sides", sides);
-	cmd.AddValue ("mobilityStatic", "Mobility static", mobilityStatic);
+	cmd.AddValue("sides", "Number of sides", sides);
+	cmd.AddValue("mobilityStatic", "Mobility static", mobilityStatic);
 
-	cmd.Parse (argc, argv);
+	cmd.Parse(argc, argv);
 
-	if(sides < 2) {
+	if (sides < 2)
+	{
 		sides = 2;
 	}
 
 	// Stack WI-FI
 	WifiHelper wifi;
 	WifiMacHelper wifiMac;
-	YansWifiPhyHelper wifiPhy = YansWifiPhyHelper ();
-	YansWifiChannelHelper wifiChannel = YansWifiChannelHelper::Default ();
+	YansWifiPhyHelper wifiPhy = YansWifiPhyHelper();
+	YansWifiChannelHelper wifiChannel = YansWifiChannelHelper::Default();
 	wifiPhy.SetChannel(wifiChannel.Create());
 
 	ssid = Ssid("wifi-default");
 	wifi.SetRemoteStationManager("ns3::ArfWifiManager");
-	wifiMac.SetType ("ns3::AdhocWifiMac", "Ssid", SsidValue(ssid));	
+	wifiMac.SetType("ns3::AdhocWifiMac", "Ssid", SsidValue(ssid));
 
 	// Stack Internet
 	InternetStackHelper internet = InternetStackHelper();
@@ -53,65 +53,65 @@ main (int argc, char *argv[])
 
 	// Creamos el contenedor de nodos
 	NodeContainer c = NodeContainer();
-	c.Create (sides*sides);
+	c.Create(sides * sides);
 
 	MobilityHelper mobility;
-	Ptr<ListPositionAllocator> positionAlloc = CreateObject <ListPositionAllocator>();
+	Ptr<ListPositionAllocator> positionAlloc = CreateObject<ListPositionAllocator>();
 	int punt = 0;
 
 	int distance = (200 / sides);
-	positionAlloc ->Add(Vector( -100, - 100, 0));
-	
+	positionAlloc->Add(Vector(-100, -100, 0));
 
 	internet.Install(c);
-	NetDeviceContainer devices = wifi.Install (wifiPhy, wifiMac, c);
-	Ipv4InterfaceContainer Ipv4InterfaceContainer = ipv4Addresses.Assign (devices);
-	wifiPhy.EnablePcapAll ("olsr-random-mobility", false);
+	NetDeviceContainer devices = wifi.Install(wifiPhy, wifiMac, c);
+	Ipv4InterfaceContainer Ipv4InterfaceContainer = ipv4Addresses.Assign(devices);
+	wifiPhy.EnablePcapAll("olsr-random-mobility", false);
 
-	uint16_t port = 9;  // well-known echo port number
-	UdpEchoServerHelper server (port);
-	ApplicationContainer apps = server.Install (c.Get (0));
-	apps.Start (Seconds (1.0));
-	apps.Stop (Seconds (10.0));
-	serverAddress = Address(Ipv4InterfaceContainer.GetAddress (0));
-	Time interPacketInterval = Seconds (1.);
+	uint16_t port = 9; // well-known echo port number
+	UdpEchoServerHelper server(port);
+	ApplicationContainer apps = server.Install(c.Get(0));
+	apps.Start(Seconds(1.0));
+	apps.Stop(Seconds(10.0));
+	serverAddress = Address(Ipv4InterfaceContainer.GetAddress(0));
+	Time interPacketInterval = Seconds(1.);
 	uint32_t packetSize = 1024;
 	uint32_t maxPacketCount = 1;
-	UdpEchoClientHelper client (serverAddress, port);
-	client.SetAttribute ("MaxPackets", UintegerValue (maxPacketCount));
-	client.SetAttribute ("Interval", TimeValue (interPacketInterval));
-	client.SetAttribute ("PacketSize", UintegerValue (packetSize));
+	UdpEchoClientHelper client(serverAddress, port);
+	client.SetAttribute("MaxPackets", UintegerValue(maxPacketCount));
+	client.SetAttribute("Interval", TimeValue(interPacketInterval));
+	client.SetAttribute("PacketSize", UintegerValue(packetSize));
 
-	for( int i = 0; i < sides; i++ )	
+	for (int i = 0; i < sides; i++)
 	{
-		for ( int j = 0; j < sides; j++)
+		for (int j = 0; j < sides; j++)
 		{
-			if(punt != 0)
+			if (punt != 0)
 			{
-				apps = client.Install (c.Get (punt));
-				apps.Start (Seconds (2.0));
-				apps.Stop (Seconds (10.0));
-				positionAlloc ->Add(Vector( i*distance - 100, j*distance - 100, 0));
-			}	
+				apps = client.Install(c.Get(punt));
+				apps.Start(Seconds(2.0));
+				apps.Stop(Seconds(10.0));
+				positionAlloc->Add(Vector(i * distance - 100, j * distance - 100, 0));
+			}
 			punt++;
 		}
 	}
 
 	mobility.SetPositionAllocator(positionAlloc);
-\
 
-	if(mobilityStatic){
+	if (mobilityStatic)
+	{
 		mobility.SetMobilityModel("ns3::ConstantPositionMobilityModel");
 	}
-	else{
-		mobility.SetMobilityModel("ns3::RandomDirection2dMobilityModel", "Bounds", RectangleValue (Rectangle (0, 100, 0, 100)), "Speed", StringValue ("ns3::ConstantRandomVariable[Constant=10]"));
+	else
+	{
+		mobility.SetMobilityModel("ns3::RandomDirection2dMobilityModel", "Bounds", RectangleValue(Rectangle(0, 100, 0, 100)), "Speed", StringValue("ns3::ConstantRandomVariable[Constant=10]"));
 	}
 
 	mobility.Install(c);
 
-	Simulator::Stop (Seconds (20.0));
-	Simulator::Run ();
-	Simulator::Destroy ();
+	Simulator::Stop(Seconds(20.0));
+	Simulator::Run();
+	Simulator::Destroy();
 
 	return 0;
 }
